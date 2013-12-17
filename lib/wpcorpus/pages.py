@@ -24,10 +24,19 @@ def extract_page(xmlf):
     tag = i.next()
     title = ""
     while tag:
+        
+        #print (tag)
+        #print (tag[0])
+        #print (tag[1].tag)
+        #if (tag[1].text):
+
+
         if tag[0] == 'end':
             if tag[1].tag.endswith("title"):
                 title = tag[1].text
+                print (title.encode("utf-8"))
             elif tag[1].tag.endswith("text"):
+                #print (tag[1].text.encode("utf-8"))
                 yield (title, tag[1].text)
                 title = ""
     
@@ -101,4 +110,5 @@ def extract_text(xmlf):
             cat = extract_cat(page)
             if title and len(title) > 0 and cat and len(cat) > 0:
                 text = filter_markup(page)
+                #print (cat, title, text)
                 yield (cat, title, text)

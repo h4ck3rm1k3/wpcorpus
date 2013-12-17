@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo rabbitmq-server -detached
+#sudo rabbitmq-server -detached
 
 sleep 5
 

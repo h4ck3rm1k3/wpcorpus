@@ -15,12 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+logging.getLogger('pika').setLevel(logging.DEBUG)
 
 from pika import (BlockingConnection,
                   SelectConnection,
                   BasicProperties)
 
 from pika.callback import CallbackManager
+
 
 #<- stupid hack
 def sanitize(self, key):

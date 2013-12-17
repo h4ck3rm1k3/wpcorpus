@@ -16,6 +16,9 @@
 # limitations under the License.
 #
 
+import logging
+logging.getLogger('pika').setLevel(logging.DEBUG)
+
 from wpcorpus.pages import extract_text
 import os
 import re
@@ -30,10 +33,13 @@ from wpcorpus.config import BASE_PATH
 
 TMPF = "/tmp/wiki"
 
+
 def worker(filename, nr):
+    # filename is an xml file
     import wpcorpus.process
 
     outfilename = "%s/corpus/text/%s.txt" % (BASE_PATH, nr)
+    print (outfilename)
     f = open(outfilename, "a")
     pos = f.tell()
 
@@ -43,6 +49,7 @@ def worker(filename, nr):
     queue = Publisher(p)
     queue.start(p.exchange)
 
+    # 
     for cat, _title, text in extract_text(filename):
         t = text.encode("ascii", "ignore")
         l = len(t)
@@ -60,10 +67,15 @@ def report_done(nr):
     f.close()
 
 def main():
-    filename = sys.argv[1]
-    nr = sys.argv[2]
+    if len(sys.argv) > 1 :
+        filename = sys.argv[1]
+        nr = sys.argv[2]
+    else:
+        print ("expecting args: filename nr")
+        return 
 
-    filename = "%s/lib/wpcorpus/%s" % (BASE_PATH, filename)
+#    filename = "%s/lib/wpcorpus/%s" % (BASE_PATH, filename)
+    print (filename)
     worker(filename, nr)
 
     report_done(nr)

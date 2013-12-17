@@ -8,11 +8,21 @@ Paths and file names are configured directly in the scripts right now. Of course
 
 First, you need a Wikipedia article dump. You can get them in whatever language Wikipedia offers: [http://dumps.wikimedia.org/backup-index.html](http://dumps.wikimedia.org/backup-index.html). Pick a language, and download a full article dump like enwiki-20121201-pages-articles.xml (of course, with a newer date). You will need the XML file, so feel free to un-bzip it first. What you get is, well, a huge dump file.
 
+You can also download a file :
+wget https://en.wikipedia.org/wiki/Special:Export/Lawrence,_Kansas -O wpcorpus/dump/enwiki-20121201-pages-articles.xml
+
+
 ## Chunking the dump
 
 The dump file is huge, so you want to chunk it in order to parallelise processing later. And generally: devide and conquer, you know. 
 
 Chunking is done in one step and without parallelisation. bin/chunk.sh is what you need. Configure the chunk size, paths and other parameters in the lib/wpcorpus/chunk.py if you like. What you will get is a bunch of files that are valid Wikipedia XML files including parts of the whole dump.
+
+
+Run like this :
+
+PYTHONPATH=lib python lib/wpcorpus/chunk.py
+
 
 ## Processing
 
@@ -20,7 +30,9 @@ Processing is basically preparing N text files and indexing them. Both in combin
 
 The other part processing does is indexing. Index is built using [PyTables](http://www.pytables.org/moin), so you need to install it first. Also, during the processing, a RabbitMQ queue is used for communication between the processing script and the indexer. So, you need [RabbitMQ](http://www.rabbitmq.com) and [pika](https://github.com/pika/pika).  
 
-You will also need some further Python libs: [lxml](http://lxml.de) and [SimpleConfigParser](http://www.decalage.info/en/python/configparser). When you have all components installed and configured, run bin/index.sh first and bin/process.sh next. They work as a pair. Yes, indeed, I could have implemented a top script that takes care of firing up both and shuttding it down properly.
+  sudo apt-get install rabbit-mq 
+
+You will also need some further Python libs: [lxml](http://lxml.de) and [SimpleConfigParser](http://www.decalage.info/en/python/configparser). When you have all components installed and configured, run bin/index.sh first and bin/process.sh next. They work as a pair. Yes, indeed, I could have implemented a top script that takes care of firing up both and shutting it down properly.
 
 ## Usage
 
@@ -38,7 +50,7 @@ By the time of writing, libxml has exposed a pretty weird memory leak, so I freq
 
 One possible question can also be: why not use Hadoop for that? Well, the answer is: why use Hadoop for that? It's just a tiny bunch of scripts and can run in an hour or two on a modern notebook without any file system abstractions. Or without any abstractions, to be honest. Think yourself the rest.
 
-Another incompleteness is that right now only word based NLTK training is possible. I didn't yet implement sentenses and paragraphs, but this would be easy to do.
+Another incompleteness is that right now only word based NLTK training is possible. I didn't yet implement sentences and paragraphs, but this would be easy to do.
 
 Speaking of Wikipedia's category chaos: in order to train your classifiers in a way that is usable, you would end up having long lists of categories and anti-gategories. The better you can separate them, the better the accuracy. And still, it's text, so trying to reliably distinguish a political text from the one on economics using wpcorpus, might lead to misclassification. It will lead to misclassification. On the other hand, using completely unrelated anti-categories the way I use in the example, is also not really helpful. You would only have to go with the accuracy of the political articles on Wikipedia, which is from my experience not absolutely reliable.
 

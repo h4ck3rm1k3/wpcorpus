@@ -33,22 +33,44 @@ class CategorizedWikiCorpusReader(object):
         self.ix = "%s/ix/h5.ix" % root
         catpat = cat_pattern.pattern.split(DELIM)
         self.cat = catpat[0]
-        self.yescats = catpat[1].split(DELIM2)
-        self.nocats = catpat[2].split(DELIM2)
+
+        print ("cat %s" % self.cat)
+
+        if (len(catpat)> 1):
+            self.yescats = catpat[1].split(DELIM2)
+        else:
+            self.yescats = []
+
+        if (len(catpat)> 1):
+            self.nocats = catpat[2].split(DELIM2)
+        else:
+            self.nocats = []
+
         self.tokenizer = WordPunctTokenizer()
         self.h5 = openFile(self.ix)
         self.table = self.h5.root.index.index
 
     def categories(self):
+        print ("categories %s" % self.cat)
         return [self.cat, IRR]
 
     def fileids(self, categories):
+        print ("check categories %s" % categories)
+
+        print ("check cat1 %s" % self.cat)
+
         if categories[0] == self.cat:
-            cats = self.yescats
+            print ("yes cats %s" % self.yescats)
+            if (self.yescats) :
+                cats = self.yescats
+            else:
+                cats = [self.cat]
         else:
             cats = self.nocats
 
         rows = []
+
+        print ("check cat %s" % cats)
         for cat in cats:
 
             print "training %s as %s" % (cat, categories[0])
@@ -66,6 +88,7 @@ class CategorizedWikiCorpusReader(object):
 
     def words(self, fileids=None):
         words = []
+        print ("fileids %s" % fileids)
         for fid in fileids:
             row = fid.split(DELIM)
             f = open(row[0])
